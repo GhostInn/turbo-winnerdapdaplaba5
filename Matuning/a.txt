@@ -1,0 +1,1061 @@
+namespace Matuning.Domain.Enums;
+
+public enum AvailabilityStatus
+{
+    Доступна = 1,
+    Обменяна,
+    Продана,
+    ЗапросНаОбмен
+}namespace Matuning.Domain.Enums;
+
+public enum NotificationType
+{
+    InterestInPart,
+    InterestInService
+}namespace Matuning.Domain.Enums;
+
+public enum OfferOrRequest
+{
+    Offer,
+    Request
+}using Matuning.Domain.Models.Reports;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Matuning.Domain.Interfaces
+{
+    public interface IReportsRepository
+    {
+        Task<bool> AddReportAsync(Report report);
+        Task<Report> GetReportByIdAsync(int reportId);
+        Task<IEnumerable<Report>> GetAllReportsAsync();
+        Task<bool> UpdateReportAsync(Report report);
+        Task<bool> DeleteReportAsync(int reportId);
+    }
+}using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Interfaces;
+
+public interface IUsersRepository
+{
+    Task<bool> AddUserAsync(User user);
+    Task<User> GetUserByIdAsync(int userId);
+    Task<User> GetUserByUsernameAsync(string username);
+    Task<bool> UpdateUserAsync(User user);
+    Task<bool> DeleteUserAsync(int userId);
+    Task<IEnumerable<User>> GetAllUsersAsync();
+}using Matuning.Domain.Models.Engines;
+using Matuning.Domain.Models.Parts;
+using Matuning.Domain.Models.Transmissions;
+using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Cars;
+
+public class Car
+{
+    public int CarId { get; set; }
+    public int UserId { get; set; }
+    public string Make { get; set; } // Марка
+    public string Model { get; set; } // Модель
+    public short Year { get; set; } // Год выпуска
+    public int EngineTypeId { get; set; }
+    public int TransmissionId { get; set; }
+
+    // Навигационные свойства
+    public User User { get; set; }
+    public EngineType EngineType { get; set; }
+    public Transmission Transmission { get; set; }
+    public ICollection<Part> Parts { get; set; }
+}namespace Matuning.Domain.Models.Conversations;
+
+public class Conversation
+{
+    public int ConversationId { get; set; }
+
+    // Навигационные свойства
+    public ICollection<Message> Messages { get; set; }
+    public ICollection<ConversationParticipant> Participants { get; set; }
+}using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Conversations;
+
+public class ConversationParticipant
+{
+    public int ConversationId { get; set; }
+    public int UserId { get; set; }
+
+    // Навигационные свойства
+    public Conversation Conversation { get; set; }
+    public User User { get; set; }
+}using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Conversations;
+
+public class Message
+{
+    public int MessageId { get; set; }
+    public int ConversationId { get; set; }
+    public int SenderUserId { get; set; }
+    public string MessageText { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    // Навигационные свойства
+    public Conversation Conversation { get; set; }
+    public User Sender { get; set; }
+}using Matuning.Domain.Models.Cars;
+
+namespace Matuning.Domain.Models.Engines;
+
+public class EngineType
+{
+    public int EngineTypeId { get; set; }
+    public string EngineTypeName { get; set; }
+
+    // Навигационные свойства
+    public ICollection<Car> Cars { get; set; }
+}using Matuning.Domain.Enums;
+using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Notifications;
+
+public class Notification
+{
+    public int NotificationId { get; set; }
+    public int UserId { get; set; }
+    public NotificationType NotificationType { get; set; }
+    public int ReferenceId { get; set; } // Может ссылаться на part_id, service_id и т.д.
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool ReadStatus { get; set; } = false;
+
+    // Навигационные свойства
+    public User User { get; set; }
+}using Matuning.Domain.Models.Cars;
+using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Parts;
+
+public class Part
+{
+    public int PartId { get; set; }
+    public int UserId { get; set; }
+    public int CarId { get; set; }
+    public string PartName { get; set; }
+    public string Description { get; set; }
+    public string Condition { get; set; }
+    public int AvailabilityStatusId { get; set; }
+    public DateTime PostingDate { get; set; } = DateTime.UtcNow;
+
+    // Навигационные свойства
+    public User User { get; set; }
+    public Car Car { get; set; }
+    public PartStatus AvailabilityStatus { get; set; }
+}namespace Matuning.Domain.Models.Parts;
+
+public class PartStatus
+{
+    public int StatusId { get; set; }
+    public string StatusName { get; set; }
+
+    // Навигационные свойства
+    public ICollection<Part> Parts { get; set; }
+}using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Reports;
+
+public class Comment
+{
+    public int CommentId { get; set; }
+    public int ReportId { get; set; }
+    public int UserId { get; set; }
+    public string CommentText { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    // Навигационные свойства
+    public Report Report { get; set; }
+    public User User { get; set; }
+}using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Reports;
+
+public class Report
+{
+    public int ReportId { get; set; }
+    public int UserId { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+    public string ContentUrl { get; set; } // Ссылка на фото или видео
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+    // Навигационные свойства
+    public User User { get; set; }
+    public ICollection<Comment> Comments { get; set; }
+}using Matuning.Domain.Enums;
+using Matuning.Domain.Models.Users;
+
+namespace Matuning.Domain.Models.Services;
+
+public class Service
+{
+    public int ServiceId { get; set; }
+    public int UserId { get; set; }
+    public string ServiceName { get; set; }
+    public string Description { get; set; }
+    public OfferOrRequest OfferOrRequest { get; set; }
+    public string Status { get; set; }
+    public DateTime PostingDate { get; set; } = DateTime.UtcNow;
+
+    // Навигационные свойства
+    public User User { get; set; }
+}using Matuning.Domain.Models.Cars;
+
+namespace Matuning.Domain.Models.Transmissions;
+
+public class Transmission
+{
+    public int TransmissionId { get; set; }
+    public string TransmissionTypeName { get; set; }
+
+    // Навигационные свойства
+    public ICollection<Car> Cars { get; set; }
+}using Matuning.Domain.Models.Cars;
+using Matuning.Domain.Models.Conversations;
+using Matuning.Domain.Models.Notifications;
+using Matuning.Domain.Models.Parts;
+using Matuning.Domain.Models.Reports;
+using Matuning.Domain.Models.Services;
+
+namespace Matuning.Domain.Models.Users;
+
+public class User
+{
+    public int UserId { get; set; }
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string PasswordHash { get; set; }
+    public DateTime RegistrationDate { get; set; } = DateTime.UtcNow;
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Phone { get; set; }
+    
+    // Навигационные свойства
+    public ICollection<Car> Cars { get; set; }
+    public ICollection<Part> Parts { get; set; }
+    public ICollection<Service> Services { get; set; }
+    public ICollection<Message> MessagesSent { get; set; }
+    public ICollection<Report> Reports { get; set; }
+    public ICollection<Comment> Comments { get; set; }
+    public ICollection<Notification> Notifications { get; set; }
+}namespace Matuning.Domain.ValueObjects;
+
+public class Email
+{
+    public string Address { get; private set; }
+
+    private Email() { }
+
+    public Email(string address)
+    {
+        if (!IsValid(address))
+            throw new ArgumentException("Invalid email address.");
+
+        Address = address;
+    }
+
+    private bool IsValid(string address)
+    {
+        if (string.IsNullOrWhiteSpace(address))
+            return false;
+
+        try
+        {
+            // Простая валидация, можно использовать MailAddress или другой механизм
+            var addr = new System.Net.Mail.MailAddress(address);
+            return addr.Address == address;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    // Переопределение Equals и GetHashCode для сравнения
+    public override bool Equals(object obj)
+    {
+        return obj is Email email &&
+               Address == email.Address;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Address);
+    }
+}using Matuning.Domain.Models.Reports;
+using Matuning.Domain.Models.Users;
+using Microsoft.EntityFrameworkCore;
+
+namespace Matuning.Infrastructure;
+
+public class ApplicationDbContext : DbContext
+{
+    public DbSet<Report> Reports { get; set; }
+    public DbSet<User> Users { get; set; }
+
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    // Дополнительная конфигурация модели при необходимости
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Пример настройки сущности User
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.Username).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.PasswordHash).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.RegistrationDate).IsRequired();
+            // Добавьте другие настройки по необходимости
+        });
+
+        // Пример настройки сущности Report
+        modelBuilder.Entity<Report>(entity =>
+        {
+            entity.HasKey(e => e.ReportId);
+            entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.Timestamp).IsRequired();
+            // Добавьте другие настройки по необходимости
+        });
+
+        // Добавьте другие сущности и их настройки по мере необходимости
+    }
+}using Matuning.Domain.Interfaces;
+using Matuning.Domain.Models.Reports;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+namespace Matuning.Infrastructure
+{
+    public class ReportsRepository : IReportsRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public ReportsRepository(ApplicationDbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<bool> AddReportAsync(Report report)
+        {
+            _context.Reports.Add(report);
+            return (await _context.SaveChangesAsync()) > 0;
+        }
+
+        public async Task<Report> GetReportByIdAsync(int reportId)
+        {
+            return await _context.Reports.FindAsync(reportId);
+        }
+
+        public async Task<IEnumerable<Report>> GetAllReportsAsync()
+        {
+            return await _context.Reports.ToListAsync();
+        }
+
+        public async Task<bool> UpdateReportAsync(Report report)
+        {
+            _context.Reports.Update(report);
+            return (await _context.SaveChangesAsync()) > 0;
+        }
+
+        public async Task<bool> DeleteReportAsync(int reportId)
+        {
+            var report = await _context.Reports.FindAsync(reportId);
+            if (report == null)
+                return false;
+
+            _context.Reports.Remove(report);
+            return (await _context.SaveChangesAsync()) > 0;
+        }
+    }
+}using Matuning.Domain.Interfaces;
+using Matuning.Domain.Models.Users;
+using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+namespace Matuning.Infrastructure
+{
+    public class UsersRepository : IUsersRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public UsersRepository(ApplicationDbContext context)
+        {
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        public async Task<bool> AddUserAsync(User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            // Проверка обязательных полей на null или пустоту
+            if (string.IsNullOrWhiteSpace(user.Username))
+                throw new ArgumentException("Username не может быть пустым или null.", nameof(user.Username));
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+                throw new ArgumentException("Email не может быть пустым или null.", nameof(user.Email));
+
+            if (string.IsNullOrWhiteSpace(user.PasswordHash))
+                throw new ArgumentException("PasswordHash не может быть пустым или null.", nameof(user.PasswordHash));
+
+            if (user.RegistrationDate == default)
+                throw new ArgumentException("RegistrationDate не может быть пустым.", nameof(user.RegistrationDate));
+
+            // Дополнительные проверки можно добавить по необходимости
+            // Например, проверка формата Email
+
+            _context.Users.Add(user);
+            var rowsAffected = await _context.SaveChangesAsync();
+
+            return rowsAffected > 0;
+        }
+
+        public async Task<User> GetUserByIdAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("UserId должен быть положительным числом.", nameof(userId));
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} was not found.");
+
+            return user;
+        }
+
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username не может быть пустым или null.", nameof(username));
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user == null)
+                throw new KeyNotFoundException($"User with username '{username}' was not found.");
+
+            return user;
+        }
+
+        public async Task<bool> UpdateUserAsync(User user)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (user.UserId <= 0)
+                throw new ArgumentException("Invalid UserId.", nameof(user.UserId));
+
+            // Проверка обязательных полей на null или пустоту
+            if (string.IsNullOrWhiteSpace(user.Username))
+                throw new ArgumentException("Username не может быть пустым или null.", nameof(user.Username));
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+                throw new ArgumentException("Email не может быть пустым или null.", nameof(user.Email));
+
+            if (string.IsNullOrWhiteSpace(user.PasswordHash))
+                throw new ArgumentException("PasswordHash не может быть пустым или null.", nameof(user.PasswordHash));
+
+            if (user.RegistrationDate == default)
+                throw new ArgumentException("RegistrationDate не может быть пустым.", nameof(user.RegistrationDate));
+
+            var existingUser = await _context.Users.FindAsync(user.UserId);
+            if (existingUser == null)
+                throw new KeyNotFoundException($"User with ID {user.UserId} был не найден.");
+
+            // Обновление полей существующего пользователя
+            existingUser.Username = user.Username;
+            existingUser.Email = user.Email;
+            existingUser.PasswordHash = user.PasswordHash;
+            existingUser.RegistrationDate = user.RegistrationDate;
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.Phone = user.Phone;
+
+            _context.Users.Update(existingUser);
+            var rowsAffected = await _context.SaveChangesAsync();
+
+            return rowsAffected > 0;
+        }
+
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            if (userId <= 0)
+                throw new ArgumentException("UserId должен быть положительным числом.", nameof(userId));
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException($"User with ID {userId} был не найден.");
+
+            _context.Users.Remove(user);
+            var rowsAffected = await _context.SaveChangesAsync();
+
+            return rowsAffected > 0;
+        }
+
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.AsNoTracking().ToListAsync();
+        }
+    }
+}using Matuning.Domain.Interfaces;
+using Matuning.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Настройка Serilog (раскомментируйте и настройте при необходимости)
+//Log.Logger = new LoggerConfiguration()
+  //  // .ReadFrom.Configuration(builder.Configuration)
+    //.Enrich.FromLogContext()
+  //  .WriteTo.Console()
+    //.WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day)
+    //.CreateLogger();
+
+// builder.Host.UseSerilog();
+
+// Добавление DbContext в контейнер DI
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Регистрация репозиториев с временем жизни Scoped
+builder.Services.AddScoped<IUsersRepository, UsersRepository>();
+builder.Services.AddScoped<IReportsRepository, ReportsRepository>(); // Если используете репозитории
+
+// Добавление контроллеров и других сервисов
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Остальные сервисы и настройки
+// Например, настройки CORS, аутентификации и т.д.
+
+var app = builder.Build();
+
+// Настройка middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();using Matuning.Domain.Interfaces;
+using Matuning.Domain.Models.Reports;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Matuning.WebApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ReportsController : ControllerBase
+    {
+        private readonly IReportsRepository _reportsRepository;
+
+        public ReportsController(IReportsRepository reportsRepository)
+        {
+            _reportsRepository = reportsRepository ?? throw new ArgumentNullException(nameof(reportsRepository));
+        }
+
+        // Create report
+        [HttpPost]
+        public async Task<IActionResult> AddReportAsync([FromBody] Report report)
+        {
+            if (report == null)
+            {
+                return BadRequest("Report cannot be null.");
+            }
+
+            // Дополнительная валидация модели
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                bool result = await _reportsRepository.AddReportAsync(report);
+                if (result)
+                {
+                    // Возвращаем статус 201 Created с ссылкой на созданный ресурс
+                    return CreatedAtAction(nameof(GetReportByIdAsync), new { reportId = report.ReportId }, report);
+                }
+                else
+                {
+                    // Если по каким-то причинам добавление не удалось
+                    return StatusCode(500, "An error occurred while creating the report.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                // Возвращаем ошибку валидации
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки (можно добавить логгер через DI)
+                // _logger.LogError(ex, "Error occurred while adding a report.");
+
+                // Возвращаем статус 500 Internal Server Error
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        // Get report by ID
+        [HttpGet("{reportId}")]
+        public async Task<IActionResult> GetReportByIdAsync(int reportId)
+        {
+            if (reportId <= 0)
+            {
+                return BadRequest("ReportId must be a positive integer.");
+            }
+
+            try
+            {
+                var report = await _reportsRepository.GetReportByIdAsync(reportId);
+
+                if (report == null)
+                {
+                    return NotFound($"Report with ID {reportId} was not found.");
+                }
+
+                return Ok(report);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                // _logger.LogError(ex, "Error occurred while retrieving the report.");
+
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        // Get all reports
+        [HttpGet]
+        public async Task<IActionResult> GetAllReportsAsync()
+        {
+            try
+            {
+                var reports = await _reportsRepository.GetAllReportsAsync();
+                return Ok(reports);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                // _logger.LogError(ex, "Error occurred while retrieving all reports.");
+
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        // Update report
+        [HttpPut("{reportId}")]
+        public async Task<IActionResult> UpdateReportAsync(int reportId, [FromBody] Report report)
+        {
+            if (report == null)
+            {
+                return BadRequest("Report cannot be null.");
+            }
+
+            if (reportId != report.ReportId)
+            {
+                return BadRequest("Report ID in the URL does not match the Report ID in the body.");
+            }
+
+            // Дополнительная валидация модели
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                bool result = await _reportsRepository.UpdateReportAsync(report);
+
+                if (result)
+                {
+                    return NoContent(); // 204 No Content означает успешное обновление без возвращаемого содержимого
+                }
+                else
+                {
+                    return NotFound($"Report with ID {reportId} was not found.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                // _logger.LogError(ex, "Error occurred while updating the report.");
+
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+
+        // Delete report
+        [HttpDelete("{reportId}")]
+        public async Task<IActionResult> DeleteReportAsync(int reportId)
+        {
+            if (reportId <= 0)
+            {
+                return BadRequest("ReportId must be a positive integer.");
+            }
+
+            try
+            {
+                bool result = await _reportsRepository.DeleteReportAsync(reportId);
+
+                if (result)
+                {
+                    return NoContent(); // 204 No Content означает успешное удаление
+                }
+                else
+                {
+                    return NotFound($"Report with ID {reportId} was not found.");
+                }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Логирование ошибки
+                // _logger.LogError(ex, "Error occurred while deleting the report.");
+
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+    }
+}using Matuning.Domain.Interfaces;
+using Matuning.Domain.Models.Users;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Matuning.WebApi.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
+    {
+        private readonly IUsersRepository _usersRepository;
+        private readonly ILogger<UserController> _logger;
+
+        public UserController(IUsersRepository usersRepository, ILogger<UserController> logger)
+        {
+            _usersRepository = usersRepository ?? throw new ArgumentNullException(nameof(usersRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+        
+        // Создание пользователя
+        [HttpPost]
+        public async Task<IActionResult> AddUserAsync([FromBody] User user)
+        {
+            if (user == null)
+            {
+                _logger.LogWarning("AddUserAsync: Пользовательская модель передана как null.");
+                return BadRequest("User cannot be null.");
+            }
+
+            // Проверка валидности модели
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("AddUserAsync: Модель пользователя не валидна.");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                bool result = await _usersRepository.AddUserAsync(user);
+                if (result)
+                {
+                    // Предполагается, что UserId генерируется при создании
+                    return CreatedAtAction(nameof(GetUserByIdAsync), new { userId = user.UserId }, user);
+                }
+                else
+                {
+                    _logger.LogError("AddUserAsync: Не удалось добавить пользователя.");
+                    return StatusCode(500, "An error occurred while creating the user.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "AddUserAsync: Некорректные данные пользователя.");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "AddUserAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+        
+        // Получение пользователя по ID
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserByIdAsync(int userId)
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("GetUserByIdAsync: Некорректный userId {UserId}.", userId);
+                return BadRequest("UserId must be a positive integer.");
+            }
+
+            try
+            {
+                var user = await _usersRepository.GetUserByIdAsync(userId);
+                if (user == null)
+                {
+                    _logger.LogInformation("GetUserByIdAsync: Пользователь с ID {UserId} не найден.", userId);
+                    return NotFound($"User with ID {userId} was not found.");
+                }
+
+                return Ok(user);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "GetUserByIdAsync: Некорректный аргумент.");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetUserByIdAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+        
+        // Получение пользователя по имени пользователя
+        [HttpGet("username/{username}")]
+        public async Task<IActionResult> GetUserByUsernameAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                _logger.LogWarning("GetUserByUsernameAsync: Имя пользователя пусто или null.");
+                return BadRequest("Username cannot be null or empty.");
+            }
+
+            try
+            {
+                var user = await _usersRepository.GetUserByUsernameAsync(username);
+                if (user == null)
+                {
+                    _logger.LogInformation("GetUserByUsernameAsync: Пользователь с именем {Username} не найден.", username);
+                    return NotFound($"User with username '{username}' was not found.");
+                }
+
+                return Ok(user);
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "GetUserByUsernameAsync: Некорректный аргумент.");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetUserByUsernameAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+        
+        // Обновление пользователя
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUserAsync(int userId, [FromBody] User user)
+        {
+            if (user == null)
+            {
+                _logger.LogWarning("UpdateUserAsync: Пользовательская модель передана как null.");
+                return BadRequest("User cannot be null.");
+            }
+
+            if (userId != user.UserId)
+            {
+                _logger.LogWarning("UpdateUserAsync: Несоответствие userId в URL и теле запроса. URL: {UserId}, Body: {BodyUserId}.", userId, user.UserId);
+                return BadRequest("User ID in the URL does not match the User ID in the body.");
+            }
+
+            // Проверка валидности модели
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("UpdateUserAsync: Модель пользователя не валидна.");
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                bool result = await _usersRepository.UpdateUserAsync(user);
+
+                if (result)
+                {
+                    return NoContent(); // 204 No Content означает успешное обновление без возвращаемого содержимого
+                }
+                else
+                {
+                    _logger.LogInformation("UpdateUserAsync: Пользователь с ID {UserId} не найден для обновления.", userId);
+                    return NotFound($"User with ID {userId} was not found.");
+                }
+            }
+            catch (ArgumentException ex)
+            {
+                _logger.LogWarning(ex, "UpdateUserAsync: Некорректные данные пользователя.");
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogInformation(ex, "UpdateUserAsync: Пользователь с ID {UserId} не найден.", userId);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateUserAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+        
+        // Удаление пользователя
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUserAsync(int userId)
+        {
+            if (userId <= 0)
+            {
+                _logger.LogWarning("DeleteUserAsync: Некорректный userId {UserId}.", userId);
+                return BadRequest("UserId must be a positive integer.");
+            }
+
+            try
+            {
+                bool result = await _usersRepository.DeleteUserAsync(userId);
+
+                if (result)
+                {
+                    return NoContent(); // 204 No Content означает успешное удаление
+                }
+                else
+                {
+                    _logger.LogInformation("DeleteUserAsync: Пользователь с ID {UserId} не найден для удаления.", userId);
+                    return NotFound($"User with ID {userId} was not found.");
+                }
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogInformation(ex, "DeleteUserAsync: Пользователь с ID {UserId} не найден.", userId);
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "DeleteUserAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+        
+        // Получение всех пользователей
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUsersAsync()
+        {
+            try
+            {
+                var users = await _usersRepository.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetAllUsersAsync: Внутренняя ошибка сервера.");
+                return StatusCode(500, "An internal server error occurred.");
+            }
+        }
+    }
+}//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: System.Reflection.AssemblyCompanyAttribute("Matuning")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+450d639c53b739d3ee8e0a840b35473531ed2182")]
+[assembly: System.Reflection.AssemblyProductAttribute("Matuning")]
+[assembly: System.Reflection.AssemblyTitleAttribute("Matuning")]
+[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+
+// Создано классом WriteCodeFragment MSBuild.
+
+// <auto-generated/>
+global using global::Microsoft.AspNetCore.Builder;
+global using global::Microsoft.AspNetCore.Hosting;
+global using global::Microsoft.AspNetCore.Http;
+global using global::Microsoft.AspNetCore.Routing;
+global using global::Microsoft.Extensions.Configuration;
+global using global::Microsoft.Extensions.DependencyInjection;
+global using global::Microsoft.Extensions.Hosting;
+global using global::Microsoft.Extensions.Logging;
+global using global::System;
+global using global::System.Collections.Generic;
+global using global::System.IO;
+global using global::System.Linq;
+global using global::System.Net.Http;
+global using global::System.Net.Http.Json;
+global using global::System.Threading;
+global using global::System.Threading.Tasks;
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by a tool.
+//
+//     Changes to this file may cause incorrect behavior and will be lost if
+//     the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Reflection;
+
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Microsoft.AspNetCore.OpenApi")]
+[assembly: Microsoft.AspNetCore.Mvc.ApplicationParts.ApplicationPartAttribute("Swashbuckle.AspNetCore.SwaggerGen")]
+
+// Создано классом WriteCodeFragment MSBuild.
+

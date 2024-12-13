@@ -1,0 +1,6 @@
+@Matuning_HostAddress = http://localhost:5282
+
+GET {{Matuning_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

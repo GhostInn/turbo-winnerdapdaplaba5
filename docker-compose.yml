@@ -1,0 +1,12 @@
+﻿services:
+  matuning:
+    image: matuning
+    build:
+      context: .
+      dockerfile: Matuning/Dockerfile
+
+  matuning.tests:
+    image: matuning.tests
+    build:
+      context: .
+      dockerfile: Matuning.tests/Dockerfile
