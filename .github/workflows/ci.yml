@@ -24,7 +24,3 @@ jobs:
       # Сборка решения
       - name: Build
         run: dotnet build Matuning/Matuning.csproj --configuration Release --no-restore
-
-      # Если тесты прошли успешно, собираем Docker-образ
-      - name: Build Docker Image
-        run: docker build -t matuning-app:latest .
