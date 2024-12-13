@@ -5,7 +5,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,3 +24,27 @@ jobs:
       # Сборка решения
       - name: Build
         run: dotnet build Matuning/Matuning.csproj --configuration Release --no-restore
+        
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      # Восстанавливаем зависимости
+      - name: Restore dependencies
+        run: dotnet restore Matuning/Matuning.csproj
+
+      # Сборка решения
+      - name: Build
+        run: dotnet build Matuning/Matuning.csproj --configuration Release --no-restore
+        
+      # Запускаем тесты.
+      - name: Test
+        run: dotnet test Matuning.Tests/Matuning.Tests.csproj --configuration Release --no-build --verbosity normal
